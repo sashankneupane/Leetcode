@@ -15,13 +15,13 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 class LeetCodeScraper:
 
-    def __init__(self, username, password):
+    def __init__(self, username, password, cookies=None):
         
         self.username = username
         self.password = password
 
         # load cookies from the selenium session
-        cookies = self.get_login_cookies()
+        cookies = cookies or self.get_login_cookies()
         # load a requests session with the cookies
         self.session = self.get_requests_session(cookies)
 
@@ -68,7 +68,7 @@ class LeetCodeScraper:
             print("Login failed.")
 
         cookies = driver.get_cookies()
-        # driver.quit()
+        driver.quit()
 
         # return cookies
         return cookies
@@ -79,8 +79,7 @@ class LeetCodeScraper:
 
         # transfer the cookies to requests
         session = requests.Session()
-        for cookie in cookies:
-            session.cookies.set(cookie['name'], cookie['value'])
+        session.cookies.update(cookies)
 
         return session
 
@@ -113,9 +112,10 @@ class LeetCodeScraper:
 
     # write the latest accepted submission for given problem ids into the given path 
     def write_submissions(self, path, ids, update=False):
+        updated = 0
         for id in ids:
-            self.write_submission(path, id, update=update)
-        return len(ids)
+            updated += self.write_submission(path, id, update=update)
+        return updated
 
 
     # write the latest accepted submission for all solved problems into the given path
@@ -152,8 +152,7 @@ class LeetCodeScraper:
                 if submission["status_display"] == "Accepted":
                     return submission
 
-            print("No accepted submissions found.")
-            sys.exit(1)
+            return None
         else:
             print("Error occurred:", response.status_code)
             sys.exit(1)
@@ -223,6 +222,9 @@ class LeetCodeScraper:
     
         problem_description = self.get_description(slug)    
         submission = self.get_latest_submission(slug)
+
+        if not submission:
+            return 0
 
         title = problem_description['title']
         difficulty = problem_description['difficulty']
