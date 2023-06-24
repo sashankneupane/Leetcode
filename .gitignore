@@ -4,3 +4,5 @@ venv/
 # credentials
 .env
 
+# pycache
+**/__pycache__/

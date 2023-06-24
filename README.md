@@ -11,13 +11,29 @@ pip install -r requirements.txt
 LEETCODE_USERNAME=<your-leetcode-username>
 LEETCODE_PASSWORD=<your-leetcode-password>
 ```
-4. Run the script
+
+<!-- Explain all the command line arguments -->
+## Usage
 ```
-python3 main.py <problem-id> <path/to/store/submission>
-```
-Example usage:
-```
-python3 main.py 1 ./
+usage: main.py [--id] [--slug] [--ids] [--all] [--path] [--update]
 ```
 
-This will create a folder with the name of the problem and store the submission in it.
+### Arguments
+```
+--id, -i: Scrape a single problem by its id
+--slug, -s: Scrape a single problem by its slug
+--ids, -ids: Scrape multiple problems by their ids
+--all, -a: Scrape all problems
+--path, -p: Path to the directory where the problems will be saved
+--update, -u: Update already existing submissions as well
+```
+
+### Examples
+```bash
+python main.py -i 1 -p ./leetcode/
+python main.py -s two-sum -u
+python main.py -ids 1 2 3 4 5
+python main.py -a
+```
+
+This will create a folder with its id and name in the specified path and save the latest submission in it.
