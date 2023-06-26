@@ -1,4 +1,5 @@
 import os
+import sys
 import argparse
 from dotenv import load_dotenv
 from scraper import LeetCodeScraper
@@ -40,19 +41,31 @@ if __name__ == "__main__":
         sys.exit(1)
 
 
-    username = os.environ.get("LEETCODE_USERNAME")
-    password = os.environ.get("LEETCODE_PASSWORD")
-    cookies = None
+    username, password, cookies = None, None, None
 
     if args.cookies:
+        
         leetcode_session = os.environ.get("LEETCODE_SESSION")
         csrftoken = os.environ.get("csrftoken")
+
+        # check if LEETCODE_SESSION and csrftoken are present in .env file
+        if not leetcode_session or not csrftoken:
+            raise RuntimeError("Error: LEETCODE_SESSION or csrftoken not found in .env file")
+
         cookies = {
             'LEETCODE_SESSION': leetcode_session,
             'csrftoken': csrftoken,
         }
+    else:
+        # to get cookies from the selenium browser
+        username = os.environ.get("LEETCODE_USERNAME")
+        password = os.environ.get("LEETCODE_PASSWORD")
 
-    scrape_session = LeetCodeScraper(username, password, cookies=cookies)
+        # check if LEETCODE_USERNAME and LEETCODE_PASSWORD are present in .env file
+        if not username or not password:
+            raise RuntimeError("Error: LEETCODE_USERNAME or LEETCODE_PASSWORD not found in .env file")
+
+    scrape_session = LeetCodeScraper(username=username, password=password, cookies=cookies)
 
     # check the provided arguments and perform the corresponding actions
     if args.id:

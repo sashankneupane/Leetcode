@@ -15,13 +15,15 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 class LeetCodeScraper:
 
-    def __init__(self, username, password, cookies=None):
+    def __init__(self, username=None, password=None, cookies=None):
         
         self.username = username
         self.password = password
 
-        # load cookies from the selenium session
-        cookies = cookies or self.get_login_cookies()
+        # load cookies from the selenium session if they are not provided
+        if not cookies:
+            cookies = self.get_login_cookies()
+
         # load a requests session with the cookies
         self.session = self.get_requests_session(cookies)
 
@@ -76,10 +78,15 @@ class LeetCodeScraper:
 
     # Returns a requests session with the given cookies (from selenium)
     def get_requests_session(self, cookies):
-
-        # transfer the cookies to requests
         session = requests.Session()
-        session.cookies.update(cookies)
+
+        if isinstance(cookies, dict):
+            # If cookies are provided in {'name': value, 'name': value} format
+            session.cookies.update(cookies)
+        elif isinstance(cookies, list):
+            # If cookies are obtained from Selenium's driver.get_cookies()
+            for cookie in cookies:
+                session.cookies.set(cookie['name'], cookie['value'])
 
         return session
 
